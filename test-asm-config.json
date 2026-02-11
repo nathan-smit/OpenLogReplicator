@@ -1,5 +1,9 @@
 {
   "version": "1.9.0",
+  "state": {
+    "type": "disk",
+    "path": "checkpoint"
+  },
   "source": [{
     "alias": "ORCLCDB",
     "name": "ORCLCDB",
@@ -10,19 +14,28 @@
       "server": "//172.16.2.100:1521/ORCLCDB",
       "asm-user": "sys",
       "asm-password": "oracle",
-      "asm-connection-string": "//172.16.2.100:1521/+ASM"
+      "asm-connection-string": "//172.16.2.100:1521/+ASM",
+      "start-scn": 2061952
     },
     "format": {
-      "type": "protobuf",
-      "column": 2,
+      "type": "json",
+      "message": 2,
+      "xid": 0,
       "db": 3,
+      "timestamp": 0,
+      "timestamp-tz": 0,
+      "timestamp-all": 1,
       "interval-dts": 9,
       "interval-ytm": 4,
-      "message": 2,
+      "char": 0,
+      "scn": 0,
+      "scn-type": 1,
       "rid": 1,
+      "unknown": 0,
       "schema": 7,
-      "scn": 1,
-      "timestamp-all": 1
+      "column": 2,
+      "unknown-type": 0,
+      "flush-buffer": 1048576
     },
     "filter": {
       "table": [
