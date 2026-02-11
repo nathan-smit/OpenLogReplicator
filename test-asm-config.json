@@ -1,0 +1,41 @@
+{
+  "version": "1.9.0",
+  "source": [{
+    "alias": "ORCLCDB",
+    "name": "ORCLCDB",
+    "reader": {
+      "type": "asm",
+      "user": "c##testuser",
+      "password": "TopSecret_123",
+      "server": "//172.16.2.100:1521/ORCLCDB",
+      "asm-user": "sys",
+      "asm-password": "oracle",
+      "asm-connection-string": "//172.16.2.100:1521/+ASM"
+    },
+    "format": {
+      "type": "protobuf",
+      "column": 2,
+      "db": 3,
+      "interval-dts": 9,
+      "interval-ytm": 4,
+      "message": 2,
+      "rid": 1,
+      "schema": 7,
+      "scn": 1,
+      "timestamp-all": 1
+    },
+    "filter": {
+      "table": [
+        {"owner": "C##TESTUSER", "table": "CUSTOMERS"}
+      ]
+    }
+  }],
+  "target": [{
+    "alias": "DEBEZIUM",
+    "source": "ORCLCDB",
+    "writer": {
+      "type": "network",
+      "uri": "0.0.0.0:5000"
+    }
+  }]
+}

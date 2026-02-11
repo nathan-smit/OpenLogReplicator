@@ -95,6 +95,8 @@ list(APPEND ListWriter
         writer/WriterFile.cpp)
 
 if (WITH_OCI)
+    list(APPEND ListReader
+            reader/ReaderASM.cpp)
     list(APPEND ListReplicator
             replicator/DatabaseConnection.cpp
             replicator/DatabaseEnvironment.cpp

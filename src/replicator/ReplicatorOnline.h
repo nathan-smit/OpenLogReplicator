@@ -31,6 +31,12 @@ namespace OpenLogReplicator {
 
     class ReplicatorOnline final : public Replicator {
     protected:
+        // ASM connection parameters
+        std::string asmUser;
+        std::string asmPassword;
+        std::string asmConnectionString;
+        DatabaseConnection* asmConn{nullptr};
+
         static constexpr std::string_view SQL_GET_ARCHIVE_LOG_LIST
         {
             "SELECT"
@@ -623,6 +629,8 @@ namespace OpenLogReplicator {
         ~ReplicatorOnline() override;
 
         void goStandby() override;
+        Reader* readerCreate(int group) override;
+        void setAsmConnection(std::string newAsmUser, std::string newAsmPassword, std::string newAsmConnectionString);
 
         static void archGetLogOnline(Replicator* replicator);
     };

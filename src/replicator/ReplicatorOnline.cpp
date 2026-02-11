@@ -53,6 +53,7 @@ along with OpenLogReplicator; see the file LICENSE;  If not see
 #include "../parser/Parser.h"
 #include "../parser/TransactionBuffer.h"
 #include "../reader/Reader.h"
+#include "../reader/ReaderASM.h"
 #include "DatabaseConnection.h"
 #include "DatabaseEnvironment.h"
 #include "DatabaseStatement.h"
@@ -79,6 +80,46 @@ namespace OpenLogReplicator {
             delete env;
             env = nullptr;
         }
+
+        if (asmConn != nullptr) {
+            delete asmConn;
+            asmConn = nullptr;
+        }
+    }
+
+    void ReplicatorOnline::setAsmConnection(std::string newAsmUser, std::string newAsmPassword, std::string newAsmConnectionString) {
+        asmUser = std::move(newAsmUser);
+        asmPassword = std::move(newAsmPassword);
+        asmConnectionString = std::move(newAsmConnectionString);
+    }
+
+    Reader* ReplicatorOnline::readerCreate(int group) {
+        if (asmConnectionString.empty()) {
+            // No ASM configured, use base class (filesystem) reader
+            return Replicator::readerCreate(group);
+        }
+
+        for (Reader* reader: readers)
+            if (reader->getGroup() == group)
+                return reader;
+
+        // Create ASM connection if not yet created - reuse the existing DatabaseEnvironment
+        if (asmConn == nullptr) {
+            asmConn = new DatabaseConnection(env, asmUser, asmPassword, asmConnectionString, true);
+            asmConn->connect();
+            if (!asmConn->connected) {
+                ctx->error(10120, "failed to connect to ASM instance: " + asmConnectionString);
+                throw RuntimeException(10120, "failed to connect to ASM instance: " + asmConnectionString);
+            }
+        }
+
+        auto* readerASM = new ReaderASM(ctx, alias + "-reader-" + std::to_string(group), database, group,
+                                        metadata->dbBlockChecksum != "OFF" && metadata->dbBlockChecksum != "FALSE", asmConn);
+        readers.insert(readerASM);
+        readerASM->initialize();
+
+        ctx->spawnThread(readerASM);
+        return readerASM;
     }
 
     void ReplicatorOnline::loadDatabaseMetadata() {
